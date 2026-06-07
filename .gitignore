@@ -1,0 +1,22 @@
+# Node Modules
+node_modules/
+
+# Environment Variables
+.env
+
+# Next.js
+.next/
+
+# TypeScript Build
+dist/
+
+/build
+
+# Uploads
+uploads/
+
+# Logs
+*.log
+
+# Mac
+.DS_Store
