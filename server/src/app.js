@@ -4,6 +4,8 @@ const morgan = require("morgan");
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 const authRoutes= require("./routes/auth.routes.js");
+const documentRoutes= require("./routes/document.routes.js");
+const path = require("path");
 
 const app= express();
 
@@ -22,5 +24,7 @@ app.get("/", (req, res) => {
 })
 
 app.use("/api/auth", authRoutes);
+app.use("/api/docs", documentRoutes)
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 module.exports = app;
