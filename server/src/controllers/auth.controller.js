@@ -6,6 +6,36 @@ const registerUser= async(req, res) => {
     try {
         console.log(req.body);
         const { name, email, password } = req.body;
+
+        if(!name || !email || !password) {
+            return res.status(400).json({ success: false, message: "Please provide name, email and password"});
+        }
+
+        if(name.length < 2) {
+            return res.status(400).json({ success: false, message: "Name must be at least 2 characters"});
+        }
+
+        if(!/\S+@\S+\.\S+/.test(email)) {
+            return res.status(400).json({ success: false, message: "Invalid email address"});
+        }
+
+        if(!/(?=.*[A-Z])/.test(password)) {
+            return res.status(400).json({ success: false, message: "Password must contain at least one uppercase letter"});
+        }
+        if(!/(?=.*[a-z])/.test(password)) {
+            return res.status(400).json({ success: false, message: "Password must contain at least one lowercase letter"});
+        }
+        if(!/(?=.*[0-9])/.test(password)) {
+            return res.status(400).json({ success: false, message: "Password must contain at least one number"});
+        }
+        if(!/(?=.*[@$!%*?&])/.test(password)) {
+            return res.status(400).json({ success: false, message: "Password must contain at least one special character"});
+        }
+
+        if(password.length < 8) {
+            return res.status(400).json({ success: false, message: "Password must be at least 8 characters"});
+        }
+
         const existingUser= await User.findOne({ email });
 
         if(existingUser) {
@@ -27,6 +57,31 @@ const registerUser= async(req, res) => {
 const loginUser= async(req, res) => {
     try {
         const { email, password } = req.body;
+
+        if(!email || !password) {
+            return res.status(400).json({ success: false, message: "Please provide email and password"});
+        }
+
+        if(!/\S+@\S+\.\S+/.test(email)) {
+            return res.status(400).json({ success: false, message: "Invalid email address"});
+        }
+
+        if(password.length < 8) {
+            return res.status(400).json({ success: false, message: "Password must be at least 8 characters"});
+        }
+        if(!/(?=.*[A-Z])/.test(password)) {
+            return res.status(400).json({ success: false, message: "Password must contain at least one uppercase letter"});
+        }
+        if(!/(?=.*[a-z])/.test(password)) {
+            return res.status(400).json({ success: false, message: "Password must contain at least one lowercase letter"});
+        }
+        if(!/(?=.*[0-9])/.test(password)) {
+            return res.status(400).json({ success: false, message: "Password must contain at least one number"});
+        }
+        if(!/(?=.*[@$!%*?&])/.test(password)) {
+            return res.status(400).json({ success: false, message: "Password must contain at least one special character"});
+        }
+
         const user= await User.findOne({ email });
 
         if(!user) {
