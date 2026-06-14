@@ -1,5 +1,6 @@
 const mongoose= require('mongoose');
 
+// Document Schema: Stores uploaded PDF information
 const documentSchema= new mongoose.Schema({
     title: {
         type: String,
@@ -24,5 +25,8 @@ const documentSchema= new mongoose.Schema({
         default: 'Pending'
     },
 }, { timestamps: true });
+
+// Optimized index for: Document.find({ owner }).sort({ createdAt: -1 })
+documentSchema.index({ owner: -1, createdAt: -1 })
 
 module.exports = mongoose.model('Document', documentSchema);

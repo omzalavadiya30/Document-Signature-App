@@ -11,7 +11,7 @@ const RegisterPage = () => {
         if (token) {
             router.push("/login");
         }
-    }, []);
+    }, [router]);
 
     return (
         <main className="min-h-screen grid lg:grid-cols-2">

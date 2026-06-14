@@ -11,7 +11,7 @@ const LoginPage = () => {
         if (token) {
             router.push("/dashboard");
         }
-    }, []);
+    }, [router]);
 
     return (
         <main className="min-h-screen grid lg:grid-cols-2">

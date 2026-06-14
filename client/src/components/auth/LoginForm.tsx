@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 
 const LoginForm = () => {
     const router = useRouter();
@@ -18,12 +19,12 @@ const LoginForm = () => {
     const onSubmit = async (data: any) => {
         try {
             const response = await loginUser(data);
-
             localStorage.setItem("token", response.token);
-
+            toast.success("Login Successful")
             router.push("/dashboard");
         } catch (error) {
-            alert("Invalid credentials");
+            console.error("Login Error: ", error);
+            toast.error("Invalid credentials");
         }
     };
 
