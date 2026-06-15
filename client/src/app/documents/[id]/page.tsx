@@ -4,6 +4,11 @@ import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 import dynamic from 'next/dynamic';
+import { getSignatures, saveSignature } from '@/services/signature.service';
+import SignatureOverlay from '@/components/signature/SignatureOverlay';
+import { Signature } from '@/types/signature.types';
+import SignaturePlaceholder from '@/components/signature/SignaturePlaceholder';
+import { Document } from '@/types/document.types';
 
 const PdfViewer= dynamic(() => import("@/components/documents/PdfViewer"), { ssr: false })
 
@@ -11,12 +16,19 @@ const PdfViewer= dynamic(() => import("@/components/documents/PdfViewer"), { ssr
 const DocumentPage = () => {
     const { id }= useParams();
 
-    const [document, setDocument]= useState<any>(null)
+    const [document, setDocument]= useState<Document | null>(null)
+    const [signatures, setSignatures] = useState<Signature[]>([]);
     const [loading, setLoading]= useState(true);
+    const [signaturesLoading, setSignaturesLoading]= useState(true);
 
     useEffect(() => {
-        void loadDocument();
-    }, [])
+        if(!id) return
+        const initializePage = async () => {
+            await Promise.all([loadDocument(), loadSignatures()]);
+        };
+
+        void initializePage();
+    }, [id]);
 
     // fetch documents
     const loadDocument= async() => {
@@ -31,6 +43,29 @@ const DocumentPage = () => {
         }
     }
 
+    const loadSignatures = async () => {
+        try {
+            const data = await getSignatures(id as string);
+            setSignatures(data.signatures);
+        } catch (error) {
+            console.error("Load Signatures Error:",error);
+        } finally {
+            setSignaturesLoading(false)
+        }
+    };
+
+    const handleSaveSignature= async(x: number, y: number) => {
+        try {
+            if(!document) return;
+            const response= await saveSignature({ documentId: document._id, page: 1, x, y });
+            setSignatures(prev => [...prev, response.signature]) // Update UI immediately without refetching
+            toast.success("Signature position saved")
+        } catch(err) {
+            console.error("Signature Position Error: ", err);
+            toast.error("Failed to save Signature")
+        }
+    }
+
     if (loading) {
         return (
         <div className="p-10">
@@ -39,13 +74,27 @@ const DocumentPage = () => {
         );
     }
 
+    if (!document) {
+        return (
+            <div className="p-10">
+                Document not found.
+            </div>
+        );
+    }
+
     const pdfUrl= `http://localhost:5000${document.filePath}`
-    console.log('pdfUrl', pdfUrl)
     return (
         <main className='p-10'>
             <h1 className='text-2xl font-bold mb-6'>{document.title}</h1>
-
-            <PdfViewer fileUrl={pdfUrl} />
+            <div className='relative inline-block'>
+                <PdfViewer fileUrl={pdfUrl} />
+                <SignatureOverlay onSave={handleSaveSignature} />
+                {
+                    signatures.map(signature => (
+                        <SignaturePlaceholder key={signature._id} x={signature.x} y={signature.y} />
+                    ))
+                }
+            </div>
         </main>
     )
 }

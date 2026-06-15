@@ -13,7 +13,7 @@ const PdfViewer = ({ fileUrl }: PdfViewerProps) => {
     const [numPages, setNumPages]= useState(0);
 
     return (
-        <div className="flex justify-center">
+        <div className="relative inline-block">
             <Document file={fileUrl} onLoadSuccess={({numPages}) => setNumPages(numPages)} onLoadError={(err) => console.error("PDF Load Error: ", err)}>
                 {
                     Array.from({ length: numPages }, (_, index) => (
