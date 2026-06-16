@@ -17,7 +17,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"name\": \"Shlok Zalavadiya\",\r\n  \"email\": \"shlokzalavadiya@gmail.com\",\r\n  \"password\": \"Admin@13\"\r\n}",
+              "raw": "{\r\n  \"name\": \"Test User\",\r\n  \"email\": \"test@example.com\",\r\n  \"password\": \"Password123\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -25,12 +25,10 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/auth/register",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/auth/register",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "auth",
@@ -50,7 +48,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"email\": \"shlokzalavadiya@gmail.com\",\r\n  \"password\": \"Admin@13\"\r\n}",
+              "raw": "{\r\n  \"email\": \"test@example.com\",\r\n  \"password\": \"Password123\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -58,12 +56,10 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/auth/login",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/auth/login",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "auth",
@@ -75,40 +71,24 @@
         },
         {
           "name": "Profile",
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
           "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMzA2MDA5MDBlNWNmNjI5ZDEyYzA3NSIsImlhdCI6MTc4MTYyNTg2NiwiZXhwIjoxNzgyMjMwNjY2fQ.Jz_nSGG-b0LQhZo12CcbQJax69nHGwu0aqHNMyK0TCk",
+                  "value": "{{token}}",
                   "type": "string"
                 }
               ]
             },
             "method": "GET",
-            "header": [
-              {
-                "key": "",
-                "value": "",
-                "type": "text",
-                "disabled": true
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"email\": \"shlokzalavadiya@gmail.com\",\r\n  \"password\": \"Admin@13\"\r\n}"
-            },
+            "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/auth/profile",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/auth/profile",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "auth",
@@ -131,7 +111,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMzA2MDA5MDBlNWNmNjI5ZDEyYzA3NSIsImlhdCI6MTc4MTYyNTg2NiwiZXhwIjoxNzgyMjMwNjY2fQ.Jz_nSGG-b0LQhZo12CcbQJax69nHGwu0aqHNMyK0TCk",
+                  "value": "{{token}}",
                   "type": "string"
                 }
               ]
@@ -150,18 +130,15 @@
                 {
                   "key": "document",
                   "type": "file",
-                  "uuid": "2cdadfbf-05b2-415c-8468-746310ca4c98",
-                  "src": "/C:/Users/HP/Downloads/TCS-NQT-Paper-1 - Copy.pdf"
+                  "uuid": "2cdadfbf-05b2-415c-8468-746310ca4c98"
                 }
               ]
             },
             "url": {
-              "raw": "http://localhost:5000/api/docs/upload",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/docs/upload",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "docs",
@@ -179,7 +156,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMzA2MDA5MDBlNWNmNjI5ZDEyYzA3NSIsImlhdCI6MTc4MTYyNTg2NiwiZXhwIjoxNzgyMjMwNjY2fQ.Jz_nSGG-b0LQhZo12CcbQJax69nHGwu0aqHNMyK0TCk",
+                  "value": "{{token}}",
                   "type": "string"
                 }
               ]
@@ -187,12 +164,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/docs",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/docs",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "docs"
@@ -209,7 +184,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMzA2MDA5MDBlNWNmNjI5ZDEyYzA3NSIsImlhdCI6MTc4MTYyNTg2NiwiZXhwIjoxNzgyMjMwNjY2fQ.Jz_nSGG-b0LQhZo12CcbQJax69nHGwu0aqHNMyK0TCk",
+                  "value": "{{token}}",
                   "type": "string"
                 }
               ]
@@ -217,16 +192,14 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/docs/6a3174cc3f181d8313572b05",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/docs/{{documentId}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "docs",
-                "6a3174cc3f181d8313572b05"
+                "{{documentId}}"
               ]
             }
           },
@@ -245,7 +218,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMzA2MDA5MDBlNWNmNjI5ZDEyYzA3NSIsImlhdCI6MTc4MTYyNTg2NiwiZXhwIjoxNzgyMjMwNjY2fQ.Jz_nSGG-b0LQhZo12CcbQJax69nHGwu0aqHNMyK0TCk",
+                  "value": "{{token}}",
                   "type": "string"
                 }
               ]
@@ -254,7 +227,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"documentId\": \"6a3174cc3f181d8313572b05\",\r\n    \"page\": 1,\r\n    \"x\": 300,\r\n    \"y\": 250\r\n}",
+              "raw": "{\r\n    \"documentId\": \"{{documentId}}\",\r\n    \"page\": 1,\r\n    \"x\": 300,\r\n    \"y\": 250\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -262,12 +235,10 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/signatures",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/signatures",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "signatures"
@@ -278,37 +249,28 @@
         },
         {
           "name": "Get Signatures",
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
           "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMzA2MDA5MDBlNWNmNjI5ZDEyYzA3NSIsImlhdCI6MTc4MTYyNTg2NiwiZXhwIjoxNzgyMjMwNjY2fQ.Jz_nSGG-b0LQhZo12CcbQJax69nHGwu0aqHNMyK0TCk",
+                  "value": "{{token}}",
                   "type": "string"
                 }
               ]
             },
             "method": "GET",
             "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"documentId\": \"6a3174cc3f181d8313572b05\",\r\n    \"page\": 1,\r\n    \"x\": 300,\r\n    \"y\": 250\r\n}"
-            },
             "url": {
-              "raw": "http://localhost:5000/api/signatures/6a3174cc3f181d8313572b05",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/signatures/{{documentId}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "signatures",
-                "6a3174cc3f181d8313572b05"
+                "{{documentId}}"
               ]
             }
           },
