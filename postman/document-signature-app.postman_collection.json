@@ -1,0 +1,320 @@
+{
+  "info": {
+    "_postman_id": "15ea2e27-0587-410e-9fc4-01b2a9da8b0e",
+    "name": "Document Signature App",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "46099908",
+    "_collection_link": "https://go.postman.co/collection/46099908-15ea2e27-0587-410e-9fc4-01b2a9da8b0e?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Shlok Zalavadiya\",\r\n  \"email\": \"shlokzalavadiya@gmail.com\",\r\n  \"password\": \"Admin@13\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"shlokzalavadiya@gmail.com\",\r\n  \"password\": \"Admin@13\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Profile",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMzA2MDA5MDBlNWNmNjI5ZDEyYzA3NSIsImlhdCI6MTc4MTYyNTg2NiwiZXhwIjoxNzgyMjMwNjY2fQ.Jz_nSGG-b0LQhZo12CcbQJax69nHGwu0aqHNMyK0TCk",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"shlokzalavadiya@gmail.com\",\r\n  \"password\": \"Admin@13\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/profile",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Documents",
+      "item": [
+        {
+          "name": "Upload Document",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMzA2MDA5MDBlNWNmNjI5ZDEyYzA3NSIsImlhdCI6MTc4MTYyNTg2NiwiZXhwIjoxNzgyMjMwNjY2fQ.Jz_nSGG-b0LQhZo12CcbQJax69nHGwu0aqHNMyK0TCk",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "TCS NQT Paper",
+                  "type": "text",
+                  "uuid": "26f8693f-29bf-4764-90b4-66fa5c16fa76"
+                },
+                {
+                  "key": "document",
+                  "type": "file",
+                  "uuid": "2cdadfbf-05b2-415c-8468-746310ca4c98",
+                  "src": "/C:/Users/HP/Downloads/TCS-NQT-Paper-1 - Copy.pdf"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/docs/upload",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "docs",
+                "upload"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Documents",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMzA2MDA5MDBlNWNmNjI5ZDEyYzA3NSIsImlhdCI6MTc4MTYyNTg2NiwiZXhwIjoxNzgyMjMwNjY2fQ.Jz_nSGG-b0LQhZo12CcbQJax69nHGwu0aqHNMyK0TCk",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/docs",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "docs"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Document By ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMzA2MDA5MDBlNWNmNjI5ZDEyYzA3NSIsImlhdCI6MTc4MTYyNTg2NiwiZXhwIjoxNzgyMjMwNjY2fQ.Jz_nSGG-b0LQhZo12CcbQJax69nHGwu0aqHNMyK0TCk",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/docs/6a3174cc3f181d8313572b05",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "docs",
+                "6a3174cc3f181d8313572b05"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Signatures",
+      "item": [
+        {
+          "name": "Save Signature",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMzA2MDA5MDBlNWNmNjI5ZDEyYzA3NSIsImlhdCI6MTc4MTYyNTg2NiwiZXhwIjoxNzgyMjMwNjY2fQ.Jz_nSGG-b0LQhZo12CcbQJax69nHGwu0aqHNMyK0TCk",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"documentId\": \"6a3174cc3f181d8313572b05\",\r\n    \"page\": 1,\r\n    \"x\": 300,\r\n    \"y\": 250\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/signatures",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "signatures"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Signatures",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMzA2MDA5MDBlNWNmNjI5ZDEyYzA3NSIsImlhdCI6MTc4MTYyNTg2NiwiZXhwIjoxNzgyMjMwNjY2fQ.Jz_nSGG-b0LQhZo12CcbQJax69nHGwu0aqHNMyK0TCk",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"documentId\": \"6a3174cc3f181d8313572b05\",\r\n    \"page\": 1,\r\n    \"x\": 300,\r\n    \"y\": 250\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/signatures/6a3174cc3f181d8313572b05",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "signatures",
+                "6a3174cc3f181d8313572b05"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
