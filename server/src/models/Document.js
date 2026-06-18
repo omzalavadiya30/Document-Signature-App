@@ -24,6 +24,12 @@ const documentSchema= new mongoose.Schema({
         enum: ['Pending', 'Signed', 'Rejected'],
         default: 'Pending'
     },
+    signedFileName: {
+        type: String,
+    },
+    signedFilePath: {
+        type: String,
+    }
 }, { timestamps: true });
 
 // Optimized index for: Document.find({ owner }).sort({ createdAt: -1 })

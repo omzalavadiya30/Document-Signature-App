@@ -18,7 +18,7 @@ const DraggableSignature = ({id, x, y}: Props) => {
   }
 
   return (
-    <div ref={setNodeRef} style={style} {...listeners} {...attributes} className="absolute w-40 h-16 border-2 border-blue-500 bg-blue-100/40 rounded-md flex items-center justify-center font-medium cursor-move z-50">
+    <div id="draggable-signature" ref={setNodeRef} style={style} {...listeners} {...attributes} className="absolute w-40 h-16 border-2 border-blue-500 bg-blue-100/40 rounded-md flex items-center justify-center font-medium cursor-move z-50">
       Sign Here
     </div>
   )
