@@ -17,8 +17,6 @@ const generateSignedPdf= async({document, signature, signerName}) => {
 
     const x = (signature.x / 100) * pdfWidth;
     const y = pdfHeight - ((signature.y / 100) * pdfHeight);
-    
-    console.log({ storedX: signature.x, storedY: signature.y, pdfWidth, pdfHeight, finalX: x, finalY: y });
 
     page.drawText(`Signed by ${signerName}`, { x, y, size: 14, color: rgb(0, 0, 1) })
     const signedPdfBytes= await pdfDoc.save();

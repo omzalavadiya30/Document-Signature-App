@@ -10,6 +10,8 @@ import SignaturePlaceholder from '@/components/signature/SignaturePlaceholder';
 import { Document } from '@/types/document.types';
 import { DndContext, DragEndEvent } from '@dnd-kit/core';
 import DraggableSignature from '@/components/signature/DraggableSignature';
+import InviteSignerModal from '@/components/signature/InviteSignerModal';
+import { Mail, Save, CheckCircle } from 'lucide-react';
 
 const PdfViewer= dynamic(() => import("@/components/documents/PdfViewer"), { ssr: false })
 
@@ -21,6 +23,7 @@ const DocumentPage = () => {
     const [signatures, setSignatures] = useState<Signature[]>([]);
     const [loading, setLoading]= useState(true);
     const [signaturePosition, setSignaturePosition] = useState({ x: 100, y: 100})
+    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
     useEffect(() => {
         if(!id) return
@@ -86,12 +89,6 @@ const DocumentPage = () => {
             const xPercent = (x / containerRect.width) * 100;
             const yPercent = (y / containerRect.height) * 100;
 
-            console.log("Container Width:", width);
-            console.log("Container Height:", height);
-            console.log("Signature Position:", signaturePosition);
-            console.log("X %:", xPercent);
-            console.log("Y %:", yPercent);
-
             const response= await saveSignature({documentId: currentDocument._id, page: 1, x: xPercent, y: yPercent });
             setSignatures((prev) => [response.signature]);
             toast.success("Signature position saved");
@@ -140,27 +137,58 @@ const DocumentPage = () => {
     const pdfUrl= `http://localhost:5000${currentDocument.filePath}`
 
     return (
-        <main className='p-10'>
-            <h1 className='text-2xl font-bold mb-6'>{currentDocument.title}</h1>
-            <DndContext onDragEnd={handleDragEnd}>
-                <div id="pdf-container" className='relative inline-block'>
-                    <PdfViewer fileUrl={pdfUrl} />
-                    <DraggableSignature id='signature' x={signaturePosition.x} y={signaturePosition.y} />
-                    {
-                        signatures.map(signature => (
-                            <SignaturePlaceholder key={signature._id} x={signature.x} y={signature.y} />
-                        ))
-                    }
+        <>
+            <main className='p-10'>
+                <div className='flex justify-between items-start mb-6'>
+                    <div>
+                        <h1 className='text-2xl font-bold'>{currentDocument.title}</h1>
+                        <p className='text-gray-600 text-sm mt-2'>
+                            Status: <span className={`font-semibold ${currentDocument.status === 'Signed' ? 'text-green-600' : 'text-blue-600'}`}>
+                                {currentDocument.status}
+                            </span>
+                        </p>
+                    </div>
+                    <button 
+                        onClick={() => setIsInviteModalOpen(true)}
+                        className='px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition flex items-center gap-2'
+                    >
+                        <Mail className='w-4 h-4' />
+                        Invite Signer
+                    </button>
                 </div>
-            </DndContext>
 
-            <button onClick={saveSignaturePosition} className='mt-4 px-4 py-2 bg-blue-600 text-white rounded-md'>
-                Save Signature Position
-            </button>
-            <button onClick={handleFinalizeSignature} className="ml-4 px-5 py-2 bg-green-600 text-white rounded-md">
-                Generate Signed PDF
-            </button>
-        </main>
+                <DndContext onDragEnd={handleDragEnd}>
+                    <div id="pdf-container" className='relative inline-block'>
+                        <PdfViewer fileUrl={pdfUrl} />
+                        <DraggableSignature id='signature' x={signaturePosition.x} y={signaturePosition.y} />
+                        {
+                            signatures.map(signature => (
+                                <SignaturePlaceholder key={signature._id} x={signature.x} y={signature.y} />
+                            ))
+                        }
+                    </div>
+                </DndContext>
+
+                <div className='flex gap-3 mt-4'>
+                    <button onClick={saveSignaturePosition} className='px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition flex items-center gap-2'>
+                        <Save className='w-4 h-4' />
+                        Save Signature Position
+                    </button>
+                    <button onClick={handleFinalizeSignature} className="px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition flex items-center gap-2">
+                        <CheckCircle className='w-4 h-4' />
+                        Generate Signed PDF
+                    </button>
+                </div>
+            </main>
+
+            <InviteSignerModal
+                documentId={currentDocument._id}
+                documentTitle={currentDocument.title}
+                isOpen={isInviteModalOpen}
+                onClose={() => setIsInviteModalOpen(false)}
+                onSuccess={loadDocument}
+            />
+        </>
     )
 }
 

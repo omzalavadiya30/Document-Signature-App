@@ -2,6 +2,9 @@ const Signature = require("../models/Signature");
 const Document = require("../models/Document");
 const User= require('../models/User')
 const { generateSignedPdf } = require("../services/pdf.service");
+const generateToken = require("../utils/generateToken");
+const SignatureInvite = require("../models/SignatureInvite");
+const { sendSignatureEmail } = require("../services/email.service");
 
 /**
  * @desc Save Signature Position 
@@ -77,4 +80,50 @@ const finalizeSignature= async(req, res) => {
     }
 }
 
-module.exports= { saveSignature, getSignatures, finalizeSignature }
+/**
+ * Invite signer via email
+ *
+ * POST /api/signatures/invite
+ */
+const inviteSigner = async (req, res) => {
+    try {
+        const { documentId, signerEmail } = req.body;
+        const document = await Document.findById(documentId);
+
+        if (!document) {
+            return res.status(404).json({ success: false, message: "Document not found" });
+        }
+
+        const token = generateToken();
+        
+        const invite = await SignatureInvite.create({ documentId, signerEmail, token, expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)});
+        const signatureLink = `${process.env.CLIENT_URL}/sign/public/${token}`;
+        console.log("Signature Link:", signatureLink);
+        await sendSignatureEmail({ email: signerEmail, documentTitle: document.title, signatureLink });
+        return res.status(200).json({success: true, invite});
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: "Failed to send invitation" });
+    }
+};
+
+const getPublicDocument = async (req, res) => {
+    try {
+        const invite = await SignatureInvite.findOne({token: req.params.token});
+
+        if (!invite) {
+            return res.status(404).json({success: false, message: "Invalid Link" });
+        }
+
+        if (invite.expiresAt < new Date()) {
+            return res.status(400).json({success: false, message: "Link Expired" });
+        }
+        const document = await Document.findById(invite.documentId);
+        return res.status(200).json({success: true, document});
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({success: false, message: "Failed" });
+    }
+};
+
+module.exports= { saveSignature, getSignatures, finalizeSignature, inviteSigner, getPublicDocument }

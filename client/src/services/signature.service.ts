@@ -30,3 +30,18 @@ export const finalizeSignature= async(documentId: string) => {
 
     return response.data
 }
+
+// Get public document by token (no auth required)
+export const getPublicDocument= async(token: string) => {
+    const response= await api.get(`/api/signatures/public/${token}`)
+    return response.data
+}
+
+// Invite signer via email (send signature link)
+export const inviteSigner = async(documentId: string, signerEmail: string) => {
+    const token = localStorage.getItem("token")
+    const response = await api.post("/api/signatures/invite", { documentId, signerEmail }, {
+        headers: { Authorization: `Bearer ${token}` },
+    })
+    return response.data
+}
