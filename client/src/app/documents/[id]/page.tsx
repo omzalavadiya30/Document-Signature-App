@@ -11,7 +11,8 @@ import { Document } from '@/types/document.types';
 import { DndContext, DragEndEvent } from '@dnd-kit/core';
 import DraggableSignature from '@/components/signature/DraggableSignature';
 import InviteSignerModal from '@/components/signature/InviteSignerModal';
-import { Mail, Save, CheckCircle } from 'lucide-react';
+import AuditLogViewer from '@/components/audit/AuditLogViewer';
+import { Mail, Save, CheckCircle, Clock } from 'lucide-react';
 
 const PdfViewer= dynamic(() => import("@/components/documents/PdfViewer"), { ssr: false })
 
@@ -24,6 +25,7 @@ const DocumentPage = () => {
     const [loading, setLoading]= useState(true);
     const [signaturePosition, setSignaturePosition] = useState({ x: 100, y: 100})
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+    const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
 
     useEffect(() => {
         if(!id) return
@@ -148,13 +150,22 @@ const DocumentPage = () => {
                             </span>
                         </p>
                     </div>
-                    <button 
-                        onClick={() => setIsInviteModalOpen(true)}
-                        className='px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition flex items-center gap-2'
-                    >
-                        <Mail className='w-4 h-4' />
-                        Invite Signer
-                    </button>
+                    <div className='flex gap-2'>
+                        <button 
+                            onClick={() => setIsAuditModalOpen(true)}
+                            className='px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition flex items-center gap-2'
+                        >
+                            <Clock className='w-4 h-4' />
+                            View Audit Trail
+                        </button>
+                        <button 
+                            onClick={() => setIsInviteModalOpen(true)}
+                            className='px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition flex items-center gap-2'
+                        >
+                            <Mail className='w-4 h-4' />
+                            Invite Signer
+                        </button>
+                    </div>
                 </div>
 
                 <DndContext onDragEnd={handleDragEnd}>
@@ -179,6 +190,12 @@ const DocumentPage = () => {
                         Generate Signed PDF
                     </button>
                 </div>
+
+            <AuditLogViewer
+                documentId={currentDocument._id}
+                isOpen={isAuditModalOpen}
+                onClose={() => setIsAuditModalOpen(false)}
+            />
             </main>
 
             <InviteSignerModal

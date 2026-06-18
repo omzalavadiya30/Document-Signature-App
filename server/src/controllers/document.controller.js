@@ -1,4 +1,5 @@
 const Document = require('../models/Document');
+const { logAudit } = require("../services/audit.service");
 
 // Upload PDF Document 
 // Route: POST /api/docs/upload
@@ -19,6 +20,20 @@ const uploadDocument = async (req, res) => {
             filePath: `/uploads/original/${file.filename}`, // Store URL path instead of Windows path
             owner: req.user.id
         });
+
+        // Log audit event
+        await logAudit({
+            documentId: document._id,
+            userId: req.user.id,
+            userEmail: req.user.email || `user-${req.user.id}`,
+            userName: req.user.name,
+            action: "CREATED",
+            ipAddress: req.audit.ipAddress,
+            userAgent: req.audit.userAgent,
+            details: `Document created: ${document.title} (${file.filename})`,
+            status: "SUCCESS"
+        });
+
         res.status(200).json({ success: true, document });
     } catch (error) {
         console.error("Upload Document Error: ", error);
@@ -53,6 +68,18 @@ const getDocumentById= async(req, res) => {
         if(!document) {
             return res.status(404).json({ success: false, message: "Document Not Found" })
         }
+
+        // Log audit event
+        await logAudit({
+            documentId: document._id,
+            userId: req.user.id,
+            userEmail: req.user.email || `user-${req.user.id}`,
+            userName: req.user.name,
+            action: "VIEWED",
+            ipAddress: req.audit.ipAddress,
+            userAgent: req.audit.userAgent,
+            details: `Document viewed: ${document.title}`
+        });
 
         res.status(200).json({ success: true, document})
     } catch(err) {
