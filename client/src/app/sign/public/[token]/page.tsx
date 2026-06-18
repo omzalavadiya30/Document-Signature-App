@@ -1,10 +1,12 @@
 "use client"
-import { getPublicDocument } from '@/services/signature.service';
+import { getPublicDocument, getSignatureStatus } from '@/services/signature.service';
 import { useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { AlertTriangle, FileText, CheckCircle, Mail, Home } from 'lucide-react';
+import SignatureActionPanel from '@/components/signature/SignatureActionPanel';
+import { SignatureStatus } from '@/types/signature.types';
 
 const PdfViewer = dynamic(() => import('@/components/documents/PdfViewer'), { ssr: false });
 
@@ -21,33 +23,38 @@ interface Document {
 const PublicSignPage = () => {
     const { token } = useParams()
     const [currentDocument, setCurrentDocument] = useState<Document | null>(null);
+    const [signatureStatus, setSignatureStatus] = useState<SignatureStatus | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
 
     useEffect(() => {
         if(!token) return;
-        loadDocument();
-    }, [token])
 
-    const loadDocument = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const response = await getPublicDocument(token as string);
-            
-            if (response.success) {
-                setCurrentDocument(response.document);
-            } else {
-                setError(response.message || "Failed to load document");
+        const loadDocument = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                const response = await getPublicDocument(token as string);
+
+                if (response.success) {
+                    setCurrentDocument(response.document);
+                    const statusResponse = await getSignatureStatus(token as string);
+                    setSignatureStatus(statusResponse);
+                } else {
+                    setError(response.message || "Failed to load document");
+                }
+            } catch (err: unknown) {
+                const requestError = err as { response?: { data?: { message?: string } } }
+                console.error("Error loading document:", err);
+                setError(requestError.response?.data?.message || "Failed to load document. The link may be invalid or expired.");
+            } finally {
+                setLoading(false);
             }
-        } catch (err: any) {
-            console.error("Error loading document:", err);
-            setError(err.response?.data?.message || "Failed to load document. The link may be invalid or expired.");
-        } finally {
-            setLoading(false);
-        }
-    };
+        };
+
+        void loadDocument();
+    }, [token])
 
     if (loading) {
         return (
@@ -89,7 +96,9 @@ const PublicSignPage = () => {
         );
     }
 
-    const pdfUrl = `http://localhost:5000${currentDocument.filePath}`;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    const pdfUrl = `${apiUrl}${currentDocument.filePath}`;
+    const effectiveStatus = signatureStatus?.status || currentDocument.status;
 
     return (
         <div className="w-full bg-gray-100 min-h-screen">
@@ -99,10 +108,15 @@ const PublicSignPage = () => {
                         {currentDocument.title}
                     </h1>
                     <p className="text-gray-600 mt-2 flex items-center gap-2">
-                        {currentDocument.status === "Signed" ? (
+                        {effectiveStatus === "Signed" ? (
                             <>
                                 <CheckCircle className="w-5 h-5 text-green-600" />
                                 <span>Document Already Signed</span>
+                            </>
+                        ) : effectiveStatus === "Rejected" ? (
+                            <>
+                                <AlertTriangle className="w-5 h-5 text-red-600" />
+                                <span>Signature Request Rejected</span>
                             </>
                         ) : (
                             <>
@@ -122,18 +136,39 @@ const PublicSignPage = () => {
                     </h2>
                     <PdfViewer fileUrl={pdfUrl} />
                     
-                    {currentDocument.status === "Signed" && (
+                    {signatureStatus && (
+                        <div className="mt-6">
+                            <SignatureActionPanel
+                                token={token as string}
+                                status={signatureStatus.status}
+                                rejectionReason={signatureStatus.rejectionReason}
+                                onStatusChange={(nextStatus) => {
+                                    setSignatureStatus((previousStatus) => ({
+                                        success: true,
+                                        status: nextStatus.status,
+                                        inviteStatus: nextStatus.inviteStatus || previousStatus?.inviteStatus,
+                                        rejectionReason: nextStatus.rejectionReason ?? previousStatus?.rejectionReason,
+                                        signedAt: nextStatus.signedAt ?? previousStatus?.signedAt,
+                                        rejectedAt: nextStatus.rejectedAt ?? previousStatus?.rejectedAt
+                                    }));
+                                    setCurrentDocument((document) => document ? { ...document, status: nextStatus.status } : document);
+                                }}
+                            />
+                        </div>
+                    )}
+
+                    {effectiveStatus === "Signed" && (
                         <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
                             <CheckCircle className="w-5 h-5 text-green-700 shrink-0" />
                             <p className="text-green-700 font-semibold">This document has been signed</p>
                         </div>
                     )}
-                    
-                    {currentDocument.status !== "Signed" && (
-                        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-2">
-                            <Mail className="w-5 h-5 text-blue-700 shrink-0 mt-0.5" />
-                            <p className="text-blue-700">
-                                Signature interface coming soon. Document owner can review and finalize signatures.
+
+                    {effectiveStatus === "Rejected" && (
+                        <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                            <Mail className="w-5 h-5 text-red-700 shrink-0 mt-0.5" />
+                            <p className="text-red-700">
+                                Reason: {signatureStatus?.rejectionReason || "No reason provided."}
                             </p>
                         </div>
                     )}

@@ -12,7 +12,12 @@ const signatureSchema= new mongoose.Schema(
         signer: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
-            required: true
+            default: null
+        },
+
+        signerEmail: {
+            type: String,
+            default: null
         },
 
         page: {
@@ -34,6 +39,24 @@ const signatureSchema= new mongoose.Schema(
             type: String,
             enum: [ "Pending", "Signed", "Rejected"],
             default: "Pending"
+        },
+
+        rejectionReason: {
+            type: String,
+            default: null,
+            sparse: true
+        },
+
+        rejectedAt: {
+            type: Date,
+            default: null,
+            sparse: true
+        },
+
+        signedAt: {
+            type: Date,
+            default: null,
+            sparse: true
         }
     },
     { timestamps: true }
@@ -41,5 +64,6 @@ const signatureSchema= new mongoose.Schema(
 
 // Find signatures by document
 signatureSchema.index({ documentId: 1 })
+signatureSchema.index({ documentId: 1, status: 1 })
 
 module.exports= mongoose.model("Signature", signatureSchema)
