@@ -11,7 +11,6 @@ interface Props {
 const SignatureOverlay = ({ onSave }: Props) => {
 
     const handleClick= (event: React.MouseEvent<HTMLDivElement>) => {
-        console.log("CLICKED");
         const rect= event.currentTarget.getBoundingClientRect();
 
         const x= event.clientX - rect.left;

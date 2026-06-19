@@ -148,7 +148,6 @@ const inviteSigner = async (req, res) => {
         });
 
         const signatureLink = `${process.env.CLIENT_URL}/sign/public/${token}`;
-        console.log("Signature Link:", signatureLink);
 
         await sendSignatureEmail({ email: signerEmail, documentTitle: document.title, signatureLink });
 

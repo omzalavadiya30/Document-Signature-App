@@ -77,19 +77,12 @@ const sendSignatureEmail = async ({ email, documentTitle, signatureLink }) => {
 
         logs.push(emailLog);
         fs.writeFileSync(logFile, JSON.stringify(logs, null, 2));
-
-        console.log("📧 Mock Email Logged:");
-        console.log(`   To: ${email}`);
-        console.log(`   Subject: ${emailContent.subject}`);
-        console.log(`   Link: ${signatureLink}`);
-        
         return;
     }
 
     // Send real email
     try {
         await transporter.sendMail(emailContent);
-        console.log(`✅ Email sent to ${email}`);
     } catch (error) {
         console.error("❌ Email sending failed:", error.message);
         throw new Error(`Failed to send email: ${error.message}`);

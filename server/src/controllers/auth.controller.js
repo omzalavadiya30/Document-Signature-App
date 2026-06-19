@@ -118,8 +118,6 @@ const forgotPassword = async (req, res) => {
         await user.save();
 
         const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
-
-        console.log("Reset Link:", resetUrl);
         await sendResetPasswordEmail({ email: user.email, userName: user.name, resetUrl})
 
         return res.status(200).json({success: true, message: "Password reset link has been sent to your email"});
