@@ -138,17 +138,32 @@ const UploadDocumentPage = () => {
 
                     {/* Side Panel */}
                     <div>
-                        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                            <h2 className="font-semibold text-lg">
-                                Quick Tips
-                            </h2>
-                            <ul className="mt-4 space-y-4 text-sm text-slate-600">
-                                <li><Check /> Upload PDF files only</li>
-                                <li><Check /> Place signatures anywhere on document</li>
-                                <li><Check /> Generate final signed PDF instantly</li>
-                                <li><Check /> Share public signing links with others</li>
-                                <li><Check /> Track signature status from dashboard</li>
+                        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
+                                    <Check className="h-5 w-5 text-emerald-600" />
+                                </div>
+
+                                <h2 className="text-lg font-bold text-slate-900">
+                                    Quick Tips
+                                </h2>
+                            </div>
+
+                            <ul className="mt-6 space-y-4">
+                                {["Upload PDF files only", "Place signatures anywhere on document", "Generate final signed PDF instantly",
+                                    "Share public signing links with others", "Track signature status from dashboard"].map((tip) => (
+                                    <li key={tip} className="flex items-start gap-3 rounded-xl p-3 hover:bg-slate-50 transition">
+                                        <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100">
+                                            <Check className="h-3.5 w-3.5 text-emerald-600" />
+                                        </div>
+                                        <span className="text-sm font-medium text-slate-700">
+                                            {tip}
+                                        </span>
+                                    </li>
+                                ))}
+
                             </ul>
+
                         </div>
                     </div>
                 </div>

@@ -53,6 +53,12 @@ const LoginForm = () => {
                 <p className="text-red-500 text-sm mt-2">{errors.password?.message as string}</p>
             </div>
 
+            <div className="text-right">
+                <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
+                    Forgot Password?
+                </Link>
+            </div>
+
             <button type="submit" disabled={isSubmitting} className="mt-6 flex w-full items-center justify-center gap-3 rounded-lg bg-slate-900 py-3.5 font-semibold text-white shadow-sm transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-70">
                 {isSubmitting ? <><Loader2 className='animate-spin' />Logging in...</> : <> <LogIn size={20} />Login</>}
             </button>
