@@ -2,31 +2,21 @@ import api from "@/lib/axios";
 
 // Save signature.
 export const saveSignature= async(data: { documentId: string; page: number; x: number; y: number; }) => {
-    const token= localStorage.getItem("token")
-    const response= await api.post("/api/signatures", data, {
-        headers: { Authorization: `Bearer ${token}` },
-    })
+    const response= await api.post("/api/signatures", data)
 
     return response.data
 }
 
 // Fetch signatures.
 export const getSignatures= async(documentId: string) => {
-    const token= localStorage.getItem("token")
-    const response= await api.get(`/api/signatures/${documentId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
+    const response= await api.get(`/api/signatures/${documentId}`);
 
     return response.data;
 }
 
 // Generate signed PDF
 export const finalizeSignature= async(documentId: string) => {
-    const token= localStorage.getItem("token")
-
-    const response= await api.post("/api/signatures/finalize", {documentId}, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
+    const response= await api.post("/api/signatures/finalize", {documentId});
 
     return response.data
 }
@@ -39,10 +29,7 @@ export const getPublicDocument= async(token: string) => {
 
 // Invite signer via email (send signature link)
 export const inviteSigner = async(documentId: string, signerEmail: string) => {
-    const token = localStorage.getItem("token")
-    const response = await api.post("/api/signatures/invite", { documentId, signerEmail }, {
-        headers: { Authorization: `Bearer ${token}` },
-    })
+    const response = await api.post("/api/signatures/invite", { documentId, signerEmail })
     return response.data
 }
 

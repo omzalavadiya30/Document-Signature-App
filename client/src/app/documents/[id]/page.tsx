@@ -1,18 +1,21 @@
 "use client"
 import { getDocument } from '@/services/document.service';
 import { useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import Link from 'next/link';
+import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 import dynamic from 'next/dynamic';
 import { finalizeSignature, getSignatures, saveSignature } from '@/services/signature.service';
-import { Signature } from '@/types/signature.types';
+import type { Signature } from '@/types/signature.types';
 import SignaturePlaceholder from '@/components/signature/SignaturePlaceholder';
-import { Document } from '@/types/document.types';
-import { DndContext, DragEndEvent } from '@dnd-kit/core';
+import type { Document } from '@/types/document.types';
+import { DndContext } from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
 import DraggableSignature from '@/components/signature/DraggableSignature';
 import InviteSignerModal from '@/components/signature/InviteSignerModal';
 import AuditLogViewer from '@/components/audit/AuditLogViewer';
-import { Mail, Save, CheckCircle, Clock } from 'lucide-react';
+import StatusBadge from '@/components/ui/StatusBadge';
+import { ArrowLeft, CheckCircle, Clock, FileText, Mail, Save, ShieldCheck } from 'lucide-react';
 
 const PdfViewer= dynamic(() => import("@/components/documents/PdfViewer"), { ssr: false })
 
@@ -27,17 +30,7 @@ const DocumentPage = () => {
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
     const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
 
-    useEffect(() => {
-        if(!id) return
-        const initializePage = async () => {
-            await Promise.all([loadDocument(), loadSignatures()]);
-        };
-
-        void initializePage();
-    }, [id]);
-
-    // Fetch current document details.
-    const loadDocument= async() => {
+    const loadDocument = useCallback(async() => {
         try {
             const data= await getDocument(id as string);
             setCurrentDocument(data.document)
@@ -47,17 +40,25 @@ const DocumentPage = () => {
         } finally {
             setLoading(false)
         }
-    }
+    }, [id])
 
-    // Fetch saved signatures for the current document.
-    const loadSignatures = async () => {
+    const loadSignatures = useCallback(async () => {
         try {
             const data = await getSignatures(id as string);
             setSignatures(data.signatures);
         } catch (error) {
             console.error("Load Signatures Error:",error);
         }
-    };
+    }, [id]);
+
+    useEffect(() => {
+        if(!id) return
+        const initializePage = async () => {
+            await Promise.all([loadDocument(), loadSignatures()]);
+        };
+
+        void initializePage();
+    }, [id, loadDocument, loadSignatures]);
     
     // Stores draggable coordinates in MongoDB.
     const saveSignaturePosition = async () => {
@@ -70,10 +71,6 @@ const DocumentPage = () => {
                 return;
             }
 
-            const width = pdfContainer.clientWidth;
-            const height = pdfContainer.clientHeight;
-
-            // Save percentage instead of pixels
             const signatureElement = document.getElementById("draggable-signature");
 
             if (!signatureElement) {
@@ -92,7 +89,7 @@ const DocumentPage = () => {
             const yPercent = (y / containerRect.height) * 100;
 
             const response= await saveSignature({documentId: currentDocument._id, page: 1, x: xPercent, y: yPercent });
-            setSignatures((prev) => [response.signature]);
+            setSignatures([response.signature]);
             toast.success("Signature position saved");
         } catch (error) {
             console.error("Save Signature Error:", error);
@@ -113,6 +110,7 @@ const DocumentPage = () => {
         try {
             if (!currentDocument) return;
             await finalizeSignature(currentDocument._id);
+            setCurrentDocument({ ...currentDocument, status: "Signed" });
             toast.success("Signed PDF generated");
         } catch (error) {
             console.error(error);
@@ -122,74 +120,100 @@ const DocumentPage = () => {
 
     if (loading) {
         return (
-            <div className="p-10">
-                Loading document...
+            <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+                <div className="text-center">
+                    <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-slate-900" />
+                    <p className="text-sm font-medium text-slate-600">Loading document...</p>
+                </div>
             </div>
         );
     }
 
     if (!currentDocument) {
         return (
-            <div className="p-10">
-                Document not found.
+            <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+                <div className="max-w-md rounded-lg border border-slate-200 bg-white p-8 text-center shadow-sm">
+                    <FileText className="mx-auto h-10 w-10 text-slate-400" />
+                    <h1 className="mt-4 text-xl font-semibold text-slate-950">Document not found</h1>
+                    <p className="mt-2 text-sm text-slate-500">This document may have been removed or the link is no longer valid.</p>
+                    <Link href="/dashboard" className="mt-5 inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">
+                        <ArrowLeft className="h-4 w-4" />
+                        Back to dashboard
+                    </Link>
+                </div>
             </div>
         );
     }
 
-    const pdfUrl= `http://localhost:5000${currentDocument.filePath}`
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    const pdfUrl= `${apiUrl}${currentDocument.filePath}`
 
     return (
         <>
-            <main className='p-10'>
-                <div className='flex justify-between items-start mb-6'>
-                    <div>
-                        <h1 className='text-2xl font-bold'>{currentDocument.title}</h1>
-                        <p className='text-gray-600 text-sm mt-2'>
-                            Status: <span className={`font-semibold ${currentDocument.status === 'Signed' ? 'text-green-600' : 'text-blue-600'}`}>
-                                {currentDocument.status}
-                            </span>
-                        </p>
-                    </div>
-                    <div className='flex gap-2'>
+            <main className='min-h-screen bg-slate-50 text-slate-950'>
+                <header className='border-b border-slate-200 bg-white'>
+                    <div className='mx-auto flex max-w-7xl flex-col gap-5 px-4 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8'>
+                        <div>
+                            <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-slate-950">
+                                <ArrowLeft className="h-4 w-4" />
+                                Dashboard
+                            </Link>
+                            <div className='mt-3 flex flex-wrap items-center gap-3'>
+                                <h1 className='text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl'>{currentDocument.title}</h1>
+                                <StatusBadge status={currentDocument.status} size="md" />
+                            </div>
+                            <p className='mt-2 flex items-center gap-2 text-sm text-slate-500'>
+                                <ShieldCheck className='h-4 w-4 text-teal-700' />
+                                Manage placement, signer invitations, and audit history.
+                            </p>
+                        </div>
+                        <div className='flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end'>
                         <button 
                             onClick={() => setIsAuditModalOpen(true)}
-                            className='px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition flex items-center gap-2'
+                            className='inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50'
                         >
                             <Clock className='w-4 h-4' />
                             View Audit Trail
                         </button>
                         <button 
                             onClick={() => setIsInviteModalOpen(true)}
-                            className='px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition flex items-center gap-2'
+                            className='inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-700'
                         >
                             <Mail className='w-4 h-4' />
                             Invite Signer
                         </button>
+                        </div>
                     </div>
-                </div>
+                </header>
 
-                <DndContext onDragEnd={handleDragEnd}>
-                    <div id="pdf-container" className='relative inline-block'>
-                        <PdfViewer fileUrl={pdfUrl} />
-                        <DraggableSignature id='signature' x={signaturePosition.x} y={signaturePosition.y} />
-                        {
-                            signatures.map(signature => (
-                                <SignaturePlaceholder key={signature._id} x={signature.x} y={signature.y} />
-                            ))
-                        }
+                <section className='mx-auto grid max-w-7xl gap-5 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:px-8'>
+                    <div className='rounded-lg border border-slate-200 bg-white p-3 shadow-sm sm:p-4'>
+                        <DndContext onDragEnd={handleDragEnd}>
+                            <div id="pdf-container" className='relative mx-auto w-full max-w-[900px] overflow-x-auto rounded-lg border border-slate-200 bg-white'>
+                                <PdfViewer fileUrl={pdfUrl} />
+                                <DraggableSignature id='signature' x={signaturePosition.x} y={signaturePosition.y} />
+                                {signatures.map(signature => (
+                                    <SignaturePlaceholder key={signature._id} x={signature.x} y={signature.y} />
+                                ))}
+                            </div>
+                        </DndContext>
                     </div>
-                </DndContext>
 
-                <div className='flex gap-3 mt-4'>
-                    <button onClick={saveSignaturePosition} className='px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition flex items-center gap-2'>
-                        <Save className='w-4 h-4' />
-                        Save Signature Position
-                    </button>
-                    <button onClick={handleFinalizeSignature} className="px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition flex items-center gap-2">
-                        <CheckCircle className='w-4 h-4' />
-                        Generate Signed PDF
-                    </button>
-                </div>
+                    <aside className='h-fit rounded-lg border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-6'>
+                        <h2 className='text-base font-semibold text-slate-950'>Signature actions</h2>
+                        <p className='mt-2 text-sm text-slate-500'>Place the signature marker, save the position, then finalize the signed PDF when ready.</p>
+                        <div className='mt-5 space-y-3'>
+                            <button onClick={saveSignaturePosition} className='inline-flex w-full items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-800'>
+                                <Save className='w-4 h-4' />
+                                Save position
+                            </button>
+                            <button onClick={handleFinalizeSignature} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700">
+                                <CheckCircle className='w-4 h-4' />
+                                Generate signed PDF
+                            </button>
+                        </div>
+                    </aside>
+                </section>
 
             <AuditLogViewer
                 documentId={currentDocument._id}

@@ -62,27 +62,13 @@ const loginUser= async(req, res) => {
             return res.status(400).json({ success: false, message: "Please provide email and password"});
         }
 
-        if(!/\S+@\S+\.\S+/.test(email)) {
+        const emailRegex = /^\S+@\S+\.\S+$/;
+
+        if(!emailRegex.test(email)) {
             return res.status(400).json({ success: false, message: "Invalid email address"});
         }
 
-        if(password.length < 8) {
-            return res.status(400).json({ success: false, message: "Password must be at least 8 characters"});
-        }
-        if(!/(?=.*[A-Z])/.test(password)) {
-            return res.status(400).json({ success: false, message: "Password must contain at least one uppercase letter"});
-        }
-        if(!/(?=.*[a-z])/.test(password)) {
-            return res.status(400).json({ success: false, message: "Password must contain at least one lowercase letter"});
-        }
-        if(!/(?=.*[0-9])/.test(password)) {
-            return res.status(400).json({ success: false, message: "Password must contain at least one number"});
-        }
-        if(!/(?=.*[@$!%*?&])/.test(password)) {
-            return res.status(400).json({ success: false, message: "Password must contain at least one special character"});
-        }
-
-        const user= await User.findOne({ email });
+        const user= await User.findOne({ email }).select("+password");
 
         if(!user) {
             return res.status(400).json({ success: false, message: "Invalid Credentials"});
@@ -94,7 +80,9 @@ const loginUser= async(req, res) => {
             return res.status(401).json({ success: false, message: "Invalid Credentials"});
         }
 
-        res.status(200).json({ success: true, token: generateToken(user._id), user: { id: user._id, name: user.name, email: user.email }});
+        const token = generateToken(user._id.toString());
+
+        res.status(200).json({ success: true, message: "Login successful", token, user: { id: user._id, name: user.name, email: user.email }});
     } catch (error) {
         console.log(error);
         res.status(500).json({ success: false, message: "Internal server error" });

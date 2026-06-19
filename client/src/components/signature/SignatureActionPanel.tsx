@@ -1,9 +1,10 @@
 "use client"
 import React, { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { AlertCircle, Check, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { acceptSignatureInvite, rejectSignatureInvite } from '@/services/signature.service'
-import { SignatureStatus } from '@/types/signature.types'
+import type { SignatureStatus } from '@/types/signature.types'
 
 const getRequestErrorMessage = (error: unknown, fallback: string) => {
     const requestError = error as { response?: { data?: { message?: string } } }
@@ -38,43 +39,50 @@ const RejectionReasonModal: React.FC<RejectionModalProps> = ({ isOpen, onClose, 
 
     if (!isOpen) return null
 
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
-                <div className="border-b px-6 py-4">
-                    <h2 className="text-lg font-bold text-gray-900">Rejection Reason</h2>
+    return createPortal(
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-950/60 p-4">
+            <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="rejection-reason-title"
+                className="pointer-events-auto w-full max-w-md rounded-lg bg-white shadow-xl"
+                onClick={(event) => event.stopPropagation()}
+            >
+                <div className="border-b border-slate-200 px-6 py-4">
+                    <h2 id="rejection-reason-title" className="text-lg font-bold text-slate-950">Rejection Reason</h2>
                 </div>
 
                 <div className="p-6">
-                    <p className="text-gray-600 mb-4">Please provide a reason for rejecting this signature request.</p>
+                    <p className="mb-4 text-sm text-slate-600">Please provide a reason for rejecting this signature request.</p>
                     <textarea
                         value={reason}
                         onChange={(e) => setReason(e.target.value)}
                         placeholder="Enter rejection reason..."
                         rows={5}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-rose-600 focus:ring-2 focus:ring-rose-600/15"
                     />
                 </div>
 
-                <div className="border-t px-6 py-4 flex gap-3 justify-end">
+                <div className="flex flex-col-reverse gap-3 border-t border-slate-200 px-6 py-4 sm:flex-row sm:justify-end">
                     <button
                         onClick={onClose}
                         disabled={isLoading}
-                        className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                        className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleSubmit}
                         disabled={isLoading}
-                        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg disabled:opacity-50 flex items-center gap-2"
+                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:opacity-50"
                     >
                         {isLoading && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>}
                         Reject
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     )
 }
 
@@ -118,12 +126,12 @@ const SignatureActionPanel: React.FC<SignatureActionPanelProps> = ({ token, stat
 
     if (status === "Signed") {
         return (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
                 <div className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-green-600 mt-0.5 shrink-0" />
+                    <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
                     <div>
-                        <h3 className="font-semibold text-green-900">Signature Completed</h3>
-                        <p className="text-sm text-green-700 mt-1">
+                        <h3 className="font-semibold text-emerald-900">Signature Completed</h3>
+                        <p className="mt-1 text-sm text-emerald-700">
                             This signature request has already been signed.
                         </p>
                     </div>
@@ -134,12 +142,12 @@ const SignatureActionPanel: React.FC<SignatureActionPanelProps> = ({ token, stat
 
     if (status === "Rejected") {
         return (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="rounded-lg border border-rose-200 bg-rose-50 p-4">
                 <div className="flex items-start gap-3">
-                    <X className="w-5 h-5 text-red-600 mt-0.5 shrink-0" />
+                    <X className="mt-0.5 h-5 w-5 shrink-0 text-rose-600" />
                     <div>
-                        <h3 className="font-semibold text-red-900">Signature Rejected</h3>
-                        <p className="text-sm text-red-700 mt-1">
+                        <h3 className="font-semibold text-rose-900">Signature Rejected</h3>
+                        <p className="mt-1 text-sm text-rose-700">
                             {rejectionReason || "This signature request was rejected."}
                         </p>
                     </div>
@@ -150,22 +158,22 @@ const SignatureActionPanel: React.FC<SignatureActionPanelProps> = ({ token, stat
 
     return (
         <>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="flex items-start gap-3 mb-4">
-                    <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
+            <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="mb-4 flex items-start gap-3">
+                    <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-teal-700" />
                     <div className="flex-1">
-                        <h3 className="font-semibold text-blue-900">Signature Required</h3>
-                        <p className="text-sm text-blue-700 mt-1">
+                        <h3 className="font-semibold text-slate-950">Signature Required</h3>
+                        <p className="mt-1 text-sm text-slate-600">
                             This document requires your digital signature. Would you like to proceed?
                         </p>
                     </div>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row">
                     <button
                         onClick={handleAccept}
                         disabled={isLoading}
-                        className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-50"
                     >
                         {isLoading ? (
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -177,7 +185,7 @@ const SignatureActionPanel: React.FC<SignatureActionPanelProps> = ({ token, stat
                     <button
                         onClick={() => setIsRejectionModalOpen(true)}
                         disabled={isLoading}
-                        className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-rose-600 px-4 py-2.5 font-semibold text-white transition hover:bg-rose-700 disabled:opacity-50"
                     >
                         {isLoading ? (
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>

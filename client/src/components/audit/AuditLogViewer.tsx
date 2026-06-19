@@ -1,8 +1,8 @@
 "use client"
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { getDocumentAudit } from '@/services/audit.service'
 import { format } from 'date-fns'
-import { Clock, User, MapPin, Zap, ChevronDown, ChevronUp, PenTool, Mail, Download, AlertCircle, Eye, X } from 'lucide-react'
+import { AlertCircle, ChevronDown, ChevronUp, Clock, Download, Eye, Mail, MapPin, PenTool, X } from 'lucide-react'
 
 interface AuditLog {
     _id: string
@@ -33,13 +33,7 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ documentId, isOpen, onC
     const [total, setTotal] = useState(0)
     const [expandedId, setExpandedId] = useState<string | null>(null)
 
-    useEffect(() => {
-        if (isOpen && documentId) {
-            loadAuditLogs()
-        }
-    }, [isOpen, documentId, skip])
-
-    const loadAuditLogs = async () => {
+    const loadAuditLogs = useCallback(async () => {
         try {
             setLoading(true)
             setError(null)
@@ -50,13 +44,24 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ documentId, isOpen, onC
             } else {
                 setError(response.message || 'Failed to load audit logs')
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const requestError = err as { response?: { data?: { message?: string } } }
             console.error('Error loading audit logs:', err)
-            setError(err.response?.data?.message || 'Failed to load audit logs')
+            setError(requestError.response?.data?.message || 'Failed to load audit logs')
         } finally {
             setLoading(false)
         }
-    }
+    }, [documentId, limit, skip])
+
+    useEffect(() => {
+        if (isOpen && documentId) {
+            const timeoutId = window.setTimeout(() => {
+                void loadAuditLogs()
+            }, 0)
+
+            return () => window.clearTimeout(timeoutId)
+        }
+    }, [isOpen, documentId, loadAuditLogs])
 
     const getActionColor = (action: string) => {
         switch (action) {
@@ -97,44 +102,43 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ documentId, isOpen, onC
     if (!isOpen) return null
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-                {/* Header */}
-                <div className="border-b px-6 py-4 flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
+            <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-lg bg-white shadow-xl">
+                <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-4 sm:px-6">
                     <div>
-                        <h2 className="text-xl font-bold text-gray-900">Audit Trail</h2>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <h2 className="text-xl font-bold text-slate-950">Audit Trail</h2>
+                        <p className="mt-1 text-sm text-slate-500">
                             Document activity log ({total} total entries)
                         </p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="text-gray-500 hover:text-gray-700 text-2xl"
+                        className="rounded-md p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-950"
+                        aria-label="Close audit trail"
                     >
-                        <X />
+                        <X className="h-5 w-5" />
                     </button>
                 </div>
 
-                {/* Body */}
                 <div className="flex-1 overflow-y-auto">
                     {loading && (
                         <div className="flex items-center justify-center h-32">
                             <div className="text-center">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-                                <p className="text-gray-600">Loading audit logs...</p>
+                                <div className="mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-slate-900"></div>
+                                <p className="text-sm text-slate-600">Loading audit logs...</p>
                             </div>
                         </div>
                     )}
 
                     {error && (
-                        <div className="m-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                            <p className="text-red-700">{error}</p>
+                        <div className="m-4 rounded-lg border border-rose-200 bg-rose-50 p-4">
+                            <p className="text-sm text-rose-700">{error}</p>
                         </div>
                     )}
 
                     {!loading && !error && logs.length === 0 && (
-                        <div className="m-4 p-8 text-center text-gray-600">
-                            <Clock className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+                        <div className="m-4 p-8 text-center text-slate-600">
+                            <Clock className="mx-auto mb-2 h-12 w-12 text-slate-400" />
                             <p>No audit logs found</p>
                         </div>
                     )}
@@ -144,21 +148,21 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ documentId, isOpen, onC
                             {logs.map((log) => (
                                 <div
                                     key={log._id}
-                                    className="border rounded-lg overflow-hidden hover:shadow-md transition"
+                                    className="overflow-hidden rounded-lg border border-slate-200 transition hover:shadow-sm"
                                 >
                                     <button
                                         onClick={() => setExpandedId(expandedId === log._id ? null : log._id)}
-                                        className="w-full p-4 text-left hover:bg-gray-50 transition"
+                                        className="w-full p-4 text-left transition hover:bg-slate-50"
                                     >
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3 flex-1">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className="flex min-w-0 flex-1 items-start gap-3">
                                                 {getActionIcon(log.action)}
-                                                <div className="flex-1">
-                                                    <div className="flex items-center gap-2">
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex flex-wrap items-center gap-2">
                                                         <span className={`px-2 py-1 rounded text-xs font-semibold ${getActionColor(log.action)}`}>
                                                             {log.action}
                                                         </span>
-                                                        <span className="text-sm font-medium text-gray-900">
+                                                        <span className="break-all text-sm font-medium text-slate-950">
                                                             {log.userName || log.userEmail}
                                                         </span>
                                                         {log.status === 'FAILED' && (
@@ -167,7 +171,7 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ documentId, isOpen, onC
                                                             </span>
                                                         )}
                                                     </div>
-                                                    <div className="flex items-center gap-4 mt-1 text-xs text-gray-600">
+                                                    <div className="mt-2 flex flex-col gap-1 text-xs text-slate-500 sm:flex-row sm:flex-wrap sm:gap-4">
                                                         <div className="flex items-center gap-1">
                                                             <Clock className="w-3 h-3" />
                                                             {format(new Date(log.timestamp), 'MMM dd, yyyy HH:mm:ss')}
@@ -179,7 +183,7 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ documentId, isOpen, onC
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="text-gray-400">
+                                            <div className="text-slate-400">
                                                 {expandedId === log._id ? (
                                                     <ChevronUp className="w-5 h-5" />
                                                 ) : (
@@ -190,27 +194,27 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ documentId, isOpen, onC
                                     </button>
 
                                     {expandedId === log._id && (
-                                        <div className="border-t bg-gray-50 p-4">
+                                        <div className="border-t border-slate-200 bg-slate-50 p-4">
                                             {log.details && (
                                                 <div className="mb-3">
-                                                    <p className="text-xs font-semibold text-gray-700 mb-1">Details:</p>
-                                                    <p className="text-sm text-gray-600">{log.details}</p>
+                                                    <p className="mb-1 text-xs font-semibold text-slate-700">Details:</p>
+                                                    <p className="text-sm text-slate-600">{log.details}</p>
                                                 </div>
                                             )}
-                                            <div className="grid grid-cols-2 gap-3 text-xs">
+                                            <div className="grid gap-3 text-xs sm:grid-cols-2">
                                                 <div>
-                                                    <p className="font-semibold text-gray-700">Email:</p>
-                                                    <p className="text-gray-600 break-all">{log.userEmail}</p>
+                                                    <p className="font-semibold text-slate-700">Email:</p>
+                                                    <p className="break-all text-slate-600">{log.userEmail}</p>
                                                 </div>
                                                 <div>
-                                                    <p className="font-semibold text-gray-700">IP Address:</p>
-                                                    <p className="text-gray-600">{log.ipAddress}</p>
+                                                    <p className="font-semibold text-slate-700">IP Address:</p>
+                                                    <p className="text-slate-600">{log.ipAddress}</p>
                                                 </div>
                                             </div>
                                             {log.userAgent && (
                                                 <div className="mt-3">
-                                                    <p className="text-xs font-semibold text-gray-700 mb-1">User Agent:</p>
-                                                    <p className="text-xs text-gray-600 break-all font-mono bg-white p-2 rounded border border-gray-200">
+                                                    <p className="mb-1 text-xs font-semibold text-slate-700">User Agent:</p>
+                                                    <p className="break-all rounded border border-slate-200 bg-white p-2 font-mono text-xs text-slate-600">
                                                         {log.userAgent}
                                                     </p>
                                                 </div>
@@ -223,24 +227,23 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ documentId, isOpen, onC
                     )}
                 </div>
 
-                {/* Footer with pagination */}
                 {!loading && logs.length > 0 && (
-                    <div className="border-t px-6 py-4 flex items-center justify-between bg-gray-50">
-                        <p className="text-sm text-gray-600">
+                    <div className="flex flex-col gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                        <p className="text-sm text-slate-600">
                             Showing {skip + 1} to {Math.min(skip + limit, total)} of {total}
                         </p>
                         <div className="flex gap-2">
                             <button
                                 onClick={() => setSkip(Math.max(0, skip - limit))}
                                 disabled={skip === 0}
-                                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                                className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
                             >
                                 Previous
                             </button>
                             <button
                                 onClick={() => setSkip(skip + limit)}
                                 disabled={skip + limit >= total}
-                                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                                className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
                             >
                                 Next
                             </button>
