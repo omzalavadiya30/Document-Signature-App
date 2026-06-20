@@ -1,31 +1,11 @@
-const nodemailer = require("nodemailer");
+const  { Resend } = require("resend")
 const fs = require("fs");
 const path = require("path");
 
 /**
- * Mail Transport - Real Email
- */
-// const transporter = nodemailer.createTransport({
-//     service: "gmail",
-//     auth: {
-//         user: process.env.EMAIL_USER,
-//         pass: process.env.EMAIL_PASSWORD
-//     }
-// });
-
-const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
-    },
-});
-
-transporter.verify()
-    .then(() => console.log("✅ SMTP Connected"))
-    .catch(err => console.error("❌ SMTP Error:", err));
+ * Resend - Real Email
+*/
+const resend= new Resend(process.env.RESEND_API_KEY)
 
 /**
  * Mock email storage for development
@@ -41,7 +21,7 @@ if (!fs.existsSync(mockEmailsDir)) {
  */
 const sendSignatureEmail = async ({ email, documentTitle, signatureLink }) => {
     const emailContent = {
-        from: process.env.EMAIL_USER || "noreply@documentsignatureapp.com",
+        from: "onboarding@resend.dev",
         to: email,
         subject: "Document Signature Request",
         html: `
@@ -96,7 +76,7 @@ const sendSignatureEmail = async ({ email, documentTitle, signatureLink }) => {
 
     // Send real email
     try {
-        await transporter.sendMail(emailContent);
+        await resend.emails.send(emailContent);
     } catch (error) {
         console.error("❌ Email sending failed:", error.message);
         throw new Error(`Failed to send email: ${error.message}`);
@@ -127,8 +107,8 @@ const clearMockEmails = () => {
 
 // Send Reset Password Email to the user email
 const sendResetPasswordEmail = async ({email, resetUrl, userName }) => {
-    await transporter.sendMail({
-        from: process.env.EMAIL_USER,
+    await resend.emails.send({
+        from: "onboarding@resend.dev",
         to: email,
         subject: "Reset Your SignFlow Password",
         html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
