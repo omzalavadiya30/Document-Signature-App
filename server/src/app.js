@@ -13,10 +13,7 @@ const path = require("path");
 const app= express();
 
 app.use(cors({
-    origin: [
-        "http://localhost:3000",
-        "https://document-signature-app-nine-alpha.vercel.app/"
-    ],
+    origin: ["http:localhost:3000", process.env.CLIENT_URL],
     credentials: true
 }));
 app.use(express.json());
