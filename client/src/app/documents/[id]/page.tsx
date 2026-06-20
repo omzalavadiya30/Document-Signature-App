@@ -145,8 +145,9 @@ const DocumentPage = () => {
         );
     }
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-    const pdfUrl= `${apiUrl}${currentDocument.filePath}`
+    // const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    // const pdfUrl= `${apiUrl}${currentDocument.filePath}`
+    const pdfUrl= currentDocument.filePath
 
     return (
         <>
@@ -189,7 +190,7 @@ const DocumentPage = () => {
                 <section className='mx-auto grid max-w-7xl gap-5 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:px-8'>
                     <div className='rounded-lg border border-slate-200 bg-white p-3 shadow-sm sm:p-4'>
                         <DndContext onDragEnd={handleDragEnd}>
-                            <div id="pdf-container" className='relative mx-auto w-full max-w-[900px] overflow-x-auto rounded-lg border border-slate-200 bg-white'>
+                            <div id="pdf-container" className='relative mx-auto w-full max-w-225 overflow-x-auto rounded-lg border border-slate-200 bg-white'>
                                 <PdfViewer fileUrl={pdfUrl} />
                                 <DraggableSignature id='signature' x={signaturePosition.x} y={signaturePosition.y} />
                                 {signatures.map(signature => (

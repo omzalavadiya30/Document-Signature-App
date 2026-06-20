@@ -22,8 +22,8 @@ const saveSignature = async (req, res) => {
 
         const signature = await Signature.findOneAndUpdate(
             { documentId, signer: req.user.id },
-            { page, x, y },
-            { returnDocument: 'after', upsert: true }
+            { documentId, signer: req.user.id, page, x, y },
+            { new: true, upsert: true, runValidators: true }
         );
 
         await logAudit({
@@ -85,10 +85,15 @@ const finalizeSignature = async (req, res) => {
 
         document.signedFileName = signedPdf.fileName;
         document.signedFilePath = signedPdf.filePath;
+        document.signedCloudinaryId = signedPdf.cloudinaryId;
         document.status = "Signed";
         await document.save();
 
         signature.status = "Signed";
+        signature.signedAt = new Date();
+        // Clear rejection fields if document is signed
+        signature.rejectedAt = null;
+        signature.rejectionReason = null;
         await signature.save();
 
         await logAudit({

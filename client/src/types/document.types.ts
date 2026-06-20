@@ -5,5 +5,7 @@ export interface Document {
     fileName: string;
     filePath: string;
     status: "Pending" | "Signed" | "Rejected";
+    signedFileName?: string;
+    signedFilePath?: string;
     createdAt: string;
 }

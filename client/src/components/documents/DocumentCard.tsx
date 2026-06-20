@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import type { Document } from '@/types/document.types'
 import StatusBadge from '@/components/ui/StatusBadge'
-import { ArrowRight, CalendarDays, FileText } from 'lucide-react'
+import { ArrowRight, CalendarDays, CheckCircle, ExternalLink, FileText } from 'lucide-react'
 
 interface Props {
     document: Document
@@ -31,10 +31,23 @@ const DocumentCard = ({ document }: Props) => {
                 </p>
             </div>
 
-            <Link href={`/documents/${document._id}`} className='mt-5 inline-flex items-center justify-between rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-900 hover:bg-slate-900 hover:text-white'>
-                View document
-                <ArrowRight className='h-4 w-4 transition group-hover:translate-x-0.5' />
-            </Link>
+            {/* Actions */}
+            <div className="mt-5 flex flex-col gap-3">
+                <Link href={`/documents/${document._id}`} className="inline-flex items-center justify-between rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-900 hover:bg-slate-900 hover:text-white">
+                    View Document
+                    <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+                </Link>
+
+                {document.status === "Signed" && document.signedFilePath && (
+                    <Link href={document.signedFilePath} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-between rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">
+                        <span className="flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4" />
+                            View Signed PDF
+                        </span>
+                        <ExternalLink className="h-4 w-4" />
+                    </Link>
+                )}
+            </div>
         </article>
     )
 }

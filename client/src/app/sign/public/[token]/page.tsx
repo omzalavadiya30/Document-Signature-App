@@ -97,8 +97,9 @@ const PublicSignPage = () => {
         );
     }
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-    const pdfUrl = `${apiUrl}${currentDocument.filePath}`;
+    // const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    // const pdfUrl = `${apiUrl}${currentDocument.filePath}`;
+    const pdfUrl = currentDocument.filePath;
     const effectiveStatus = signatureStatus?.status || currentDocument.status;
 
     return (

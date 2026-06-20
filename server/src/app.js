@@ -12,7 +12,13 @@ const path = require("path");
 
 const app= express();
 
-app.use(cors());
+app.use(cors({
+    origin: [
+        "http://localhost:3000",
+        "https://document-signature-app-nine-alpha.vercel.app/"
+    ],
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

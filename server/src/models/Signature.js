@@ -63,7 +63,6 @@ const signatureSchema= new mongoose.Schema(
 );
 
 // Find signatures by document
-signatureSchema.index({ documentId: 1 })
-signatureSchema.index({ documentId: 1, status: 1 })
+signatureSchema.index({ documentId: 1, signer: 1, status: 1 }, { unique: true })
 
 module.exports= mongoose.model("Signature", signatureSchema)

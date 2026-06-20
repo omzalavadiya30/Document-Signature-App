@@ -1,5 +1,12 @@
 const multer=require('multer');
 const path= require('path');
+const fs= require('fs')
+
+const originalDir = path.join(__dirname, "../uploads/original");
+const signedDir = path.join(__dirname, "../uploads/signed");
+
+fs.mkdirSync(originalDir, { recursive: true });
+fs.mkdirSync(signedDir, { recursive: true });
 
 const storage= multer.diskStorage({
     destination: function(req, file, cb) {

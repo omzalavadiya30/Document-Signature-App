@@ -14,6 +14,9 @@ const documentSchema= new mongoose.Schema({
         type: String,
         required: true
     },
+    cloudinaryId: {
+        type: String
+    },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -29,6 +32,9 @@ const documentSchema= new mongoose.Schema({
     },
     signedFilePath: {
         type: String,
+    },
+    signedCloudinaryId: {
+        type: String
     }
 }, { timestamps: true });
 

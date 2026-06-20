@@ -1,5 +1,7 @@
 const Document = require('../models/Document');
 const { logAudit } = require("../services/audit.service");
+const fs = require("fs");
+const { uploadPdfToCloudinary } = require("../services/cloudinary.service");
 
 // Upload PDF Document 
 // Route: POST /api/docs/upload
@@ -14,12 +16,20 @@ const uploadDocument = async (req, res) => {
         else if (!file) {
             return res.status(400).json({ success: false, message: 'Please upload a PDF file' });
         }
+        const cloudinaryFile = await uploadPdfToCloudinary(file.path, "document-signature/original");
+
         const document = await Document.create({
             title: title.trim(),
-            fileName: file.filename,
-            filePath: `/uploads/original/${file.filename}`, // Store URL path instead of Windows path
+            fileName: file.originalname,
+            filePath: cloudinaryFile.secure_url,
+            cloudinaryId: cloudinaryFile.public_id,
             owner: req.user.id
         });
+
+        // Delete temporary local file
+        if (fs.existsSync(file.path)) {
+            fs.unlinkSync(file.path);
+        }
 
         // Log audit event
         await logAudit({
@@ -48,7 +58,7 @@ const uploadDocument = async (req, res) => {
  */
 const getDocuments = async(req, res) => {
     try {
-        const documents = await Document.find({ owner: req.user.id }, {title: 1, fileName: 1, filePath: 1, status: 1, createdAt: 1}).sort({ createdAt: -1}).lean();
+        const documents = await Document.find({ owner: req.user.id }, {title: 1, fileName: 1, filePath: 1, status: 1, createdAt: 1, signedFileName: 1, signedFilePath: 1 }).sort({ createdAt: -1}).lean();
         res.status(200).json({ success: true, count: documents.length, documents });
     } catch(err) {
         console.error("Get Documents Error: ", err);
