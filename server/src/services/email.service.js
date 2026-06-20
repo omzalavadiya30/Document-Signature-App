@@ -5,13 +5,27 @@ const path = require("path");
 /**
  * Mail Transport - Real Email
  */
+// const transporter = nodemailer.createTransport({
+//     service: "gmail",
+//     auth: {
+//         user: process.env.EMAIL_USER,
+//         pass: process.env.EMAIL_PASSWORD
+//     }
+// });
+
 const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD
-    }
+        pass: process.env.EMAIL_PASSWORD,
+    },
 });
+
+transporter.verify()
+    .then(() => console.log("✅ SMTP Connected"))
+    .catch(err => console.error("❌ SMTP Error:", err));
 
 /**
  * Mock email storage for development
