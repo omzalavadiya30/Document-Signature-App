@@ -353,19 +353,19 @@ GET /api/audit
 
 ## Login Page
 
-![alt text](image.png)
+<img width="1917" height="912" alt="image" src="https://github.com/user-attachments/assets/03316e13-817b-4a24-8bcb-25c632dcb08a" />
 
 ## Dashboard
 
-![alt text](image-1.png)
+<img width="1917" height="912" alt="image" src="https://github.com/user-attachments/assets/069cd1d6-0cb3-4a7d-9b22-903454827597" />
 
 ## Upload Document
 
-![alt text](image-2.png)
+<img width="1886" height="913" alt="image" src="https://github.com/user-attachments/assets/792963e4-6246-40e7-bce6-23163071d289" />
 
 ## Sign Document
 
-![alt text](image-3.png)
+<img width="1901" height="910" alt="image" src="https://github.com/user-attachments/assets/62518283-8f2f-4659-8eb3-996030360603" />
 
 ---
 
